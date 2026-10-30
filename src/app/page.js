@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowDownWideNarrow, ArrowRight, ArrowUpRight, Search, ShoppingBag, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { CartButton, useCart } from "@/components/cart-provider";
 
 const categories = ["All pieces", "beauty", "fragrances", "furniture", "groceries", "home-decoration", "kitchen-accessories", "laptops", "mens-shirts", "mens-shoes", "mens-watches", "mobile-accessories", "motorcycle", "skin-care", "smartphones", "sports-accessories", "sunglasses", "tablets", "tops", "vehicle", "womens-bags", "womens-dresses", "womens-jewellery", "womens-shoes", "womens-watches"];
 
@@ -16,6 +17,7 @@ export default function ProductList() {
   const [category, setCategory] = useState("All pieces");
   const [sortByPrice, setSortByPrice] = useState(false);
   const router = useRouter();
+  const { addItem } = useCart();
 
   useEffect(() => {
     const controller = new AbortController();
@@ -46,7 +48,7 @@ export default function ProductList() {
       <header className="site-header">
         <a className="wordmark" href="#top" aria-label="Forma home"><span className="wordmark-mark">f.</span> forma</a>
         <nav className="header-links" aria-label="Main navigation"><a href="#collection">Shop all</a><a href="#about">Our point of view</a></nav>
-        <a className="bag-link" href="#collection"><ShoppingBag size={17} strokeWidth={1.7} /><span>Bag</span><span className="bag-count">0</span></a>
+        <CartButton />
       </header>
 
       <section className="hero" id="top">
@@ -82,7 +84,7 @@ export default function ProductList() {
         {error ? <div className="empty-state"><h3>We couldn’t load the collection.</h3><p>Check your connection and refresh to try again.</p></div> : isLoading ? <div className="product-grid">{Array.from({ length: 8 }, (_, i) => <div className="product-skeleton" key={i}><div /><span /><span /></div>)}</div> : visibleProducts.length ? (
           <div className="product-grid">
             {visibleProducts.map((product, index) => (
-              <article className="product-card" key={product.id} onClick={() => router.push(`/product/${product.id}`)}>
+                <article className="product-card" key={product.id}>
                 <button className="product-image" aria-label={`View ${product.title}`} onClick={() => router.push(`/product/${product.id}`)}>
                   <img src={product.thumbnail} alt={product.title} loading={index > 7 ? "lazy" : "eager"} />
                   {index < 3 && <span className="product-tag">A good find</span>}
@@ -90,6 +92,7 @@ export default function ProductList() {
                 </button>
                 <div className="product-info"><div><p className="product-category">{titleCase(product.category)}</p><h3>{product.title}</h3></div><span className="product-price">${product.price.toFixed(2)}</span></div>
                 <p className="product-rating"><span>★</span> {product.rating.toFixed(1)} <i>·</i> {product.availabilityStatus ?? "In stock"}</p>
+                <button className="quick-add" onClick={() => addItem(product)}><ShoppingBag size={13} /> Add to bag <span>+</span></button>
               </article>
             ))}
           </div>

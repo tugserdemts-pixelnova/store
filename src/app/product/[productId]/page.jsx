@@ -1,14 +1,16 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
-import { ArrowLeft, ArrowUpRight, ShoppingBag, Star } from "lucide-react";
+import { ArrowLeft, ShoppingBag, Star } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { CartButton, useCart } from "@/components/cart-provider";
 
 export default function ProductPage({ params }) {
   const { productId } = use(params);
   const [product, setProduct] = useState(null);
   const [error, setError] = useState(false);
   const router = useRouter();
+  const { addItem } = useCart();
 
   useEffect(() => {
     const controller = new AbortController();
@@ -27,7 +29,7 @@ export default function ProductPage({ params }) {
 
   return (
     <main className="storefront product-detail-page">
-      <header className="site-header"><a className="wordmark" href="/"><span className="wordmark-mark">f.</span> forma</a><a className="bag-link" href="/"><ShoppingBag size={17} strokeWidth={1.7} /><span>Collection</span><ArrowUpRight size={14} /></a></header>
+      <header className="site-header"><a className="wordmark" href="/"><span className="wordmark-mark">f.</span> forma</a><CartButton /></header>
       <button className="back-link" onClick={() => router.push("/")}><ArrowLeft size={15} /> Back to the collection</button>
       <section className="product-detail">
         <div className="detail-image"><img src={product.images?.[0] || product.thumbnail} alt={product.title} /><span className="detail-image-count">01 / {String(product.images?.length ?? 1).padStart(2, "0")}</span></div>
@@ -37,7 +39,7 @@ export default function ProductPage({ params }) {
           <div className="detail-rating"><Star size={13} fill="currentColor" /> {product.rating.toFixed(1)} <span>·</span> {product.reviews?.length ? `${product.reviews.length} reviews` : "A customer favorite"}</div>
           <p className="detail-description">{product.description}</p>
           <div className="detail-price">${product.price.toFixed(2)} <span>USD</span></div>
-          <button className="add-to-bag" onClick={(event) => { event.currentTarget.textContent = "Added to your bag ✓"; }}><ShoppingBag size={16} /> Add to bag <span>${product.price.toFixed(2)}</span></button>
+          <button className="add-to-bag" onClick={() => addItem(product)}><ShoppingBag size={16} /> Add to bag <span>${product.price.toFixed(2)}</span></button>
           <p className="detail-note">Thoughtfully selected. Ready to make itself at home.</p>
           <div className="detail-specs"><div><span>Availability</span><b>{product.availabilityStatus ?? "In stock"}</b></div><div><span>Shipping</span><b>{product.shippingInformation ?? "Ships in 2–5 business days"}</b></div><div><span>Returns</span><b>{product.returnPolicy ?? "30 day returns"}</b></div></div>
         </div>
